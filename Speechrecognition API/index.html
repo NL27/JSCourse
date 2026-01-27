@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Recognition API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #startBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #startBtn:hover {
+            background-color: #45a049;
+        }
+        #pauseBtn {
+            background-color: #ff9800;
+            color: white;
+        }
+        #pauseBtn:hover {
+            background-color: #e68900;
+        }
+        #stopBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        #stopBtn:hover {
+            background-color: #da190b;
+        }
+        #downloadBtn {
+            background-color: #2196F3;
+            color: white;
+        }
+        #downloadBtn:hover {
+            background-color: #0b7dda;
+        }
+        #downloadBtn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        button.active {
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5);
+            transform: scale(1.05);
+        }
+        #pauseBtn.active {
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.5);
+        }
+        #stopBtn.active {
+            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.5);
+        }
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 12px 20px;
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #c62828;
+        }
+        .recording-indicator.active {
+            display: flex;
+        }
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #f44336;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .paused-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 12px 20px;
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #e65100;
+        }
+        .paused-indicator.active {
+            display: flex;
+        }
+        .paused-icon {
+            width: 12px;
+            height: 12px;
+            background-color: #ff9800;
+            border-radius: 50%;
+        }
+        .stopped-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 12px 20px;
+            background-color: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #6a1b9a;
+        }
+        .stopped-indicator.active {
+            display: flex;
+        }
+        .stopped-icon {
+            width: 12px;
+            height: 12px;
+            background-color: #9c27b0;
+            border-radius: 50%;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+        #transcript {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+        .download-section {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .language-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        .language-label {
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Speech Recognition API</h1>
+    
+    <div class="language-toggle">
+        <span class="language-label">English</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="languageToggle">
+            <span class="slider"></span>
+        </label>
+        <span class="language-label">German</span>
+    </div>
+    
+    <div class="controls">
+        <button id="startBtn">Start New Recording</button>
+        <button id="pauseBtn">Pause Recording</button>
+        <button id="stopBtn">Stop Recording</button>
+    </div>
+    
+    <div class="recording-indicator" id="recordingIndicator">
+        <div class="recording-dot"></div>
+        <span>Recording...</span>
+    </div>
+    
+    <div class="paused-indicator" id="pausedIndicator">
+        <div class="paused-icon"></div>
+        <span>Paused</span>
+    </div>
+    
+    <div class="stopped-indicator" id="stoppedIndicator">
+        <div class="stopped-icon"></div>
+        <span>Recording Stopped</span>
+    </div>
+    
+    <div id="transcript"></div>
+    
+    <div class="download-section">
+        <button id="downloadBtn">Download as TXT</button>
+    </div>
+    
+    <script src="./script.js"></script>
+</body>
+</html>
+

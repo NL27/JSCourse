@@ -1,0 +1,43 @@
+<!-- Add items to list via form
+Remove items from list by clicking the "X" button
+Clear all items with "clear" button
+Filter the items by typing in the filter field
+Add localStorage to persist items
+Click on an item to put into "edit mode" and add to form
+Update item
+Deploy To Netlify -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Task List</title>
+</head>
+<body>
+    <div class="container">
+        <header>Task List</header>
+        <form id="item-form">
+            <div class="form-control">
+                <input type="text" id="item-input" name="item" placeholder="Add a task...">
+            </div>
+            <div class="form-control">
+                <button type="submit" class="btn">Add Task</button>
+            </div>
+        </form>
+
+        <div class="filter" id="filter-container" style="display: none;">
+            <input type="text" class="form-input-filter" id="filter" placeholder="Search tasks...">
+        </div>
+
+        <div class="form-control" id="clear-all-container" style="display: none;">
+            <button type="button" id="clear-all" class="btn">Clear All</button>
+        </div>
+        
+        <ul id="item-list" class="items">
+        </ul>
+    </div>
+    
+    <script src="./script.js"></script>
+</body>
+</html>

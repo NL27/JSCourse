@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation on Map API</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        h1 {
+            margin: 0;
+            padding: 15px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+        }
+        #status {
+            padding: 10px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+            color: #333;
+        }
+        #map {
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+        #location {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            padding: 15px;
+            background-color: rgba(240, 240, 240, 0.9);
+            border-radius: 5px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        #error {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            padding: 15px;
+            background-color: rgba(255, 235, 238, 0.9);
+            border-radius: 5px;
+            color: #c62828;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        #error button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #error button:hover {
+            background-color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Geolocation on Map API</h1>
+    <p id="status">Getting your current location...</p>
+    <div id="map"></div>
+    <div id="location"></div>
+    <div id="error"></div>
+    
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script src="./script.js"></script>
+</body>
+</html>
+

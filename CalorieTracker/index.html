@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0f1419;
+            --bg-card: #1a1f26;
+            --bg-card-light: #232a33;
+            --accent-green: #10b981;
+            --accent-green-dark: #059669;
+            --accent-red: #ef4444;
+            --accent-red-dark: #dc2626;
+            --accent-orange: #f59e0b;
+            --accent-blue: #3b82f6;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(239, 68, 68, 0.06) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Stats Dashboard */
+        .dashboard {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .main-stat {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .main-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-stat-value {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .main-stat-value.positive {
+            color: var(--accent-green);
+        }
+
+        .main-stat-value.negative {
+            color: var(--accent-red);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        #calories-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.5s ease, background 0.3s ease;
+        }
+
+        #calories-progress.over-limit {
+            background: linear-gradient(90deg, var(--accent-orange), var(--accent-red));
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card-light);
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.green { background: rgba(16, 185, 129, 0.15); }
+        .stat-icon.red { background: rgba(239, 68, 68, 0.15); }
+        .stat-icon.orange { background: rgba(245, 158, 11, 0.15); }
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.15); }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Forms Section */
+        .forms-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .forms-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .form-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-card h3 span {
+            font-size: 1.25rem;
+        }
+
+        .form-card.meal h3 { color: var(--accent-green); }
+        .form-card.workout h3 { color: var(--accent-red); }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-meal {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-green-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-workout {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-red-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-reset {
+            background: transparent;
+            border: 2px solid var(--text-muted);
+            color: var(--text-secondary);
+            box-shadow: none;
+        }
+
+        .btn-reset:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-limit {
+            background: transparent;
+            border: 2px solid var(--accent-blue);
+            color: var(--accent-blue);
+            box-shadow: none;
+        }
+
+        .btn-limit:hover {
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .dashboard-actions .btn {
+            flex: 1;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-content {
+            position: relative;
+        }
+
+        /* Lists */
+        .lists-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .lists-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .list-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .list-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .items-list {
+            list-style: none;
+        }
+
+        .items-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem;
+            background: var(--bg-card-light);
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .items-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-name {
+            font-weight: 500;
+        }
+
+        .item-calories {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .item-calories.meal {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .item-calories.workout {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .delete-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            font-size: 0.875rem;
+        }
+
+        /* Filter Input */
+        .filter-container {
+            margin-bottom: 1rem;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            padding-left: 2.5rem;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .filter-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .filter-wrapper {
+            position: relative;
+        }
+
+        .filter-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            pointer-events: none;
+        }
+
+        .items-list li.hidden {
+            display: none;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 1.5rem;
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 Calorie Tracker</h1>
+            <p>Track your meals and workouts</p>
+        </header>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div class="main-stat">
+                <div class="main-stat-label">Calories Remaining</div>
+                <div class="main-stat-value positive" id="calories-remaining">2000</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="calories-progress"></div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">🎯</div>
+                    <div class="stat-value" id="calories-limit">2000</div>
+                    <div class="stat-label">Daily Limit</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🍽️</div>
+                    <div class="stat-value" id="calories-consumed">0</div>
+                    <div class="stat-label">Consumed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">💪</div>
+                    <div class="stat-value" id="calories-burned">0</div>
+                    <div class="stat-label">Burned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">⚡</div>
+                    <div class="stat-value" id="total-calories">0</div>
+                    <div class="stat-label">Net Calories</div>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <button id="limit-btn" class="btn btn-limit">🎯 Set Daily Limit</button>
+                <button id="reset-btn" class="btn btn-reset">🔄 Reset Day</button>
+            </div>
+        </div>
+
+        <!-- Set Limit Modal -->
+        <div id="limit-modal" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-content">
+                    <h3>🎯 Set Daily Calorie Limit</h3>
+                    <form id="limit-form">
+                        <div class="form-group">
+                            <label for="limit-input">Calorie Limit</label>
+                            <input type="number" id="limit-input" placeholder="e.g., 2000" required>
+                        </div>
+                        <button type="submit" class="btn btn-meal">Set Limit</button>
+                    </form>
+                    <button class="btn btn-reset" style="margin-top: 0.75rem;" onclick="document.getElementById('limit-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forms -->
+        <div class="forms-section">
+            <div class="form-card meal">
+                <h3><span>🍽️</span> Add Meal</h3>
+                <form id="meal-form">
+                    <div class="form-group">
+                        <label for="meal-name">Meal Name</label>
+                        <input type="text" id="meal-name" placeholder="e.g., Breakfast" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="meal-calories">Calories</label>
+                        <input type="number" id="meal-calories" placeholder="e.g., 400" required>
+                    </div>
+                    <button type="submit" class="btn btn-meal">Add Meal</button>
+                </form>
+            </div>
+
+            <div class="form-card workout">
+                <h3><span>💪</span> Add Workout</h3>
+                <form id="workout-form">
+                    <div class="form-group">
+                        <label for="workout-name">Workout Name</label>
+                        <input type="text" id="workout-name" placeholder="e.g., Running" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="workout-calories">Calories Burned</label>
+                        <input type="number" id="workout-calories" placeholder="e.g., 300" required>
+                    </div>
+                    <button type="submit" class="btn btn-workout">Add Workout</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lists -->
+        <div class="lists-section">
+            <div class="list-card">
+                <h3>📋 Meals</h3>
+                <div class="filter-container">
+                    <div class="filter-wrapper">
+                        <span class="filter-icon">🔍</span>
+                        <input type="text" id="meal-filter" class="filter-input" placeholder="Filter meals...">
+                    </div>
+                </div>
+                <ul class="items-list" id="meal-items">
+                    <li class="empty-state">No meals added yet</li>
+                </ul>
+            </div>
+
+            <div class="list-card">
+                <h3>📋 Workouts</h3>
+                <div class="filter-container">
+                    <div class="filter-wrapper">
+                        <span class="filter-icon">🔍</span>
+                        <input type="text" id="workout-filter" class="filter-input" placeholder="Filter workouts...">
+                    </div>
+                </div>
+                <ul class="items-list" id="workout-items">
+                    <li class="empty-state">No workouts added yet</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Modal handlers
+        document.getElementById('limit-btn').addEventListener('click', function() {
+            document.getElementById('limit-modal').classList.add('show');
+            document.getElementById('limit-input').focus();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('limit-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
+
+        // Delete handlers
+        function deleteMeal(id) {
+            tracker.removeMeal(id);
+            const item = document.querySelector(`#meal-items li[data-id="${id}"]`);
+            if (item) item.remove();
+            
+            const list = document.getElementById('meal-items');
+            // Remove no-results message if present
+            const noResults = list.querySelector('.no-results');
+            if (noResults) noResults.remove();
+            
+            // Show empty state if no actual items left
+            const remainingItems = list.querySelectorAll('li:not(.empty-state):not(.no-results)');
+            if (remainingItems.length === 0) {
+                document.getElementById('meal-filter').value = '';
+                const emptyLi = document.createElement('li');
+                emptyLi.className = 'empty-state';
+                emptyLi.textContent = 'No meals added yet';
+                list.appendChild(emptyLi);
+            }
+        }
+
+        function deleteWorkout(id) {
+            tracker.removeWorkout(id);
+            const item = document.querySelector(`#workout-items li[data-id="${id}"]`);
+            if (item) item.remove();
+            
+            const list = document.getElementById('workout-items');
+            // Remove no-results message if present
+            const noResults = list.querySelector('.no-results');
+            if (noResults) noResults.remove();
+            
+            // Show empty state if no actual items left
+            const remainingItems = list.querySelectorAll('li:not(.empty-state):not(.no-results)');
+            if (remainingItems.length === 0) {
+                document.getElementById('workout-filter').value = '';
+                const emptyLi = document.createElement('li');
+                emptyLi.className = 'empty-state';
+                emptyLi.textContent = 'No workouts added yet';
+                list.appendChild(emptyLi);
+            }
+        }
+
+        // Update remaining calories color based on value
+        const observer = new MutationObserver(function() {
+            const remaining = document.getElementById('calories-remaining');
+            const value = parseInt(remaining.textContent);
+            remaining.classList.toggle('positive', value >= 0);
+            remaining.classList.toggle('negative', value < 0);
+            
+            const progress = document.getElementById('calories-progress');
+            const consumed = parseInt(document.getElementById('calories-consumed').textContent);
+            const limit = parseInt(document.getElementById('calories-limit').textContent);
+            progress.classList.toggle('over-limit', consumed > limit);
+        });
+
+        observer.observe(document.getElementById('calories-remaining'), { 
+            childList: true, 
+            characterData: true, 
+            subtree: true 
+        });
+    </script>
+</body>
+</html>
+
